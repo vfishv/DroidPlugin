@@ -32,8 +32,9 @@ import com.morgoo.droidplugin.hook.binder.IClipboardBinderHook;
 import com.morgoo.droidplugin.hook.binder.IContentServiceBinderHook;
 import com.morgoo.droidplugin.hook.binder.IGraphicsStatsBinderHook;
 import com.morgoo.droidplugin.hook.binder.IInputMethodManagerBinderHook;
+import com.morgoo.droidplugin.hook.binder.ILocationManagerBinderHook;
 import com.morgoo.droidplugin.hook.binder.IMediaRouterServiceBinderHook;
-import com.morgoo.droidplugin.hook.binder.IMountServiceBinder;
+import com.morgoo.droidplugin.hook.binder.IMountServiceBinderHook;
 import com.morgoo.droidplugin.hook.binder.INotificationManagerBinderHook;
 import com.morgoo.droidplugin.hook.binder.ISearchManagerBinderHook;
 import com.morgoo.droidplugin.hook.binder.ISessionManagerBinderHook;
@@ -44,7 +45,6 @@ import com.morgoo.droidplugin.hook.proxy.IPackageManagerHook;
 import com.morgoo.droidplugin.hook.proxy.InstrumentationHook;
 import com.morgoo.droidplugin.hook.proxy.LibCoreHook;
 import com.morgoo.droidplugin.hook.proxy.PluginCallbackHook;
-import com.morgoo.droidplugin.hook.proxy.WebViewFactoryProviderHook;
 import com.morgoo.droidplugin.hook.xhook.SQLiteDatabaseHook;
 import com.morgoo.helper.Log;
 
@@ -118,16 +118,16 @@ public class HookFactory {
         installHook(new ISearchManagerBinderHook(context), classLoader);
         //for INotificationManager
         installHook(new INotificationManagerBinderHook(context), classLoader);
-        installHook(new IMountServiceBinder(context), classLoader);
+        installHook(new IMountServiceBinderHook(context), classLoader);
         installHook(new IAudioServiceBinderHook(context), classLoader);
         installHook(new IContentServiceBinderHook(context), classLoader);
         installHook(new IWindowManagerBinderHook(context), classLoader);
-        if (VERSION.SDK_INT >= VERSION_CODES.LOLLIPOP_MR1) {
+        if (VERSION.SDK_INT > VERSION_CODES.LOLLIPOP_MR1) {
             installHook(new IGraphicsStatsBinderHook(context), classLoader);
         }
-        if (VERSION.SDK_INT >= VERSION_CODES.KITKAT) {
-            installHook(new WebViewFactoryProviderHook(context), classLoader);
-        }
+//        if (VERSION.SDK_INT >= VERSION_CODES.KITKAT) {
+//            installHook(new WebViewFactoryProviderHook(context), classLoader);
+//        }
         if (VERSION.SDK_INT >= VERSION_CODES.KITKAT) {
             installHook(new IMediaRouterServiceBinderHook(context), classLoader);
         }
@@ -141,7 +141,9 @@ public class HookFactory {
         if (VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN_MR2) {
             installHook(new IInputMethodManagerBinderHook(context), classLoader);
         }
-
+        if (VERSION.SDK_INT >= VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
+            installHook(new ILocationManagerBinderHook(context), classLoader);
+        }
         installHook(new IPackageManagerHook(context), classLoader);
         installHook(new IActivityManagerHook(context), classLoader);
         installHook(new PluginCallbackHook(context), classLoader);

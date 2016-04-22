@@ -25,10 +25,16 @@ package com.morgoo.droidplugin.hook.handle;
 import android.app.Application;
 import android.app.Notification;
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.PixelFormat;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
+import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.RemoteViews;
@@ -36,8 +42,9 @@ import android.widget.RemoteViews;
 import com.morgoo.droidplugin.core.PluginProcessManager;
 import com.morgoo.droidplugin.hook.BaseHookHandle;
 import com.morgoo.droidplugin.hook.HookedMethodHandler;
-import com.morgoo.helper.Log;
+import com.morgoo.droidplugin.pm.PluginManager;
 import com.morgoo.droidplugin.reflect.FieldUtils;
+import com.morgoo.helper.Log;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -297,6 +304,7 @@ public class INotificationManagerHookHandle extends BaseHookHandle {
             return false;
         }
 
+
         if (notification.contentView != null && !TextUtils.equals(mHostContext.getPackageName(), notification.contentView.getPackage())) {
             return true;
         }
@@ -316,7 +324,68 @@ public class INotificationManagerHookHandle extends BaseHookHandle {
                 return true;
             }
         }
+
+        if (VERSION.SDK_INT >= VERSION_CODES.M) {
+            android.graphics.drawable.Icon icon = notification.getSmallIcon();
+            if (icon != null) {
+                try {
+                    Object mString1Obj = FieldUtils.readField(icon, "mString1", true);
+                    if (mString1Obj instanceof String) {
+                        String mString1 = ((String) mString1Obj);
+                        if (PluginManager.getInstance().isPluginPackage(mString1)) {
+                            return true;
+                        }
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "fix Icon.smallIcon", e);
+                }
+            }
+        }
+
+        if (VERSION.SDK_INT >= VERSION_CODES.M) {
+            android.graphics.drawable.Icon icon = notification.getLargeIcon();
+            if (icon != null) {
+                try {
+                    Object mString1Obj = FieldUtils.readField(icon, "mString1", true);
+                    if (mString1Obj instanceof String) {
+                        String mString1 = ((String) mString1Obj);
+                        if (PluginManager.getInstance().isPluginPackage(mString1)) {
+                            return true;
+                        }
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "fix Icon.smallIcon", e);
+                }
+            }
+        }
+
+        try {
+            Bundle mExtras = (Bundle) FieldUtils.readField(notification, "extras", true);
+            for (String s : mExtras.keySet()) {
+                if (mExtras.get(s) != null && mExtras.get(s) instanceof ApplicationInfo) {
+                    ApplicationInfo applicationInfo = (ApplicationInfo) mExtras.get(s);
+                    return !TextUtils.equals(mHostContext.getPackageName(), applicationInfo.packageName);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         return false;
+    }
+
+    private Bitmap drawableToBitMap(Drawable drawable) {
+        if (drawable instanceof BitmapDrawable) {
+            BitmapDrawable bitmapDrawable = ((BitmapDrawable) drawable);
+            return bitmapDrawable.getBitmap();
+        } else {
+            Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), drawable.getOpacity() != PixelFormat.OPAQUE ? Bitmap.Config.ARGB_8888 : Bitmap.Config.RGB_565);
+            Canvas canvas = new Canvas(bitmap);
+            drawable.setBounds(0, 0, drawable.getIntrinsicWidth(),
+                    drawable.getIntrinsicHeight());
+            drawable.draw(canvas);
+            return bitmap;
+        }
     }
 
     private void hackNotification(Notification notification) throws IllegalAccessException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException {
@@ -348,6 +417,28 @@ public class INotificationManagerHookHandle extends BaseHookHandle {
             }
             if (VERSION.SDK_INT >= VERSION_CODES.LOLLIPOP) {
                 hackRemoteViews(notification.headsUpContentView);
+            }
+
+            if (VERSION.SDK_INT >= VERSION_CODES.M) {
+                android.graphics.drawable.Icon icon = notification.getSmallIcon();
+                if (icon != null) {
+                    Bitmap bitmap = drawableToBitMap(icon.loadDrawable(mHostContext));
+                    if (bitmap != null) {
+                        android.graphics.drawable.Icon newIcon = android.graphics.drawable.Icon.createWithBitmap(bitmap);
+                        FieldUtils.writeField(notification, "mSmallIcon", newIcon, true);
+                    }
+                }
+            }
+
+            if (VERSION.SDK_INT >= VERSION_CODES.M) {
+                android.graphics.drawable.Icon icon = notification.getLargeIcon();
+                if (icon != null) {
+                    Bitmap bitmap = drawableToBitMap(icon.loadDrawable(mHostContext));
+                    if (bitmap != null) {
+                        android.graphics.drawable.Icon newIcon = android.graphics.drawable.Icon.createWithBitmap(bitmap);
+                        FieldUtils.writeField(notification, "mLargeIcon", newIcon, true);
+                    }
+                }
             }
         }
     }

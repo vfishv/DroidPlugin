@@ -1,16 +1,25 @@
-apply plugin: 'android'
+apply plugin: 'com.android.application'
 
 dependencies {
     compile fileTree(include: '*.jar', dir: 'libs')
-//    compile project(':Libraries:DroidPlugin')
+    compile 'com.android.support:support-v4:23.1.1'
+    compile 'com.android.support:appcompat-v7:23.1.1'
+    compile 'com.android.support:design:23.1.1'
 }
 
 android {
-    compileSdkVersion 22
-    buildToolsVersion "22.0.1"
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
 
-    project.buildDir = "bin"
-
+    defaultConfig {
+        ndk {
+            moduleName 'Test'
+            stl 'stlport_static'
+            abiFilters 'armeabi', 'armeabi-v7a', 'x86'
+            ldLibs 'log'
+            cFlags '-DMY_LOG_LEVEL=LOG_VERBOSE'
+        }
+    }
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
@@ -20,6 +29,9 @@ android {
             renderscript.srcDirs = ['src']
             res.srcDirs = ['res']
             assets.srcDirs = ['assets']
+            jni.srcDirs = ['jni']
+            jniLibs.srcDirs = ['libs']
+
         }
 
         instrumentTest.setRoot('tests')
@@ -30,11 +42,4 @@ android {
     lintOptions {
         abortOnError false
     }
-
-    dexOptions {
-        jumboMode true
-    }
-
-
-
 }

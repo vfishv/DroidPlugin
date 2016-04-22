@@ -1,12 +1,10 @@
 package com.example.ApiTest;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -14,7 +12,7 @@ import android.widget.Toast;
 
 import java.util.List;
 
-public class MyActivity extends Activity implements OnClickListener {
+public class MyActivity extends AppCompatActivity implements OnClickListener {
 
 
     private static final String TAG = "MyActivity";
@@ -33,6 +31,8 @@ public class MyActivity extends Activity implements OnClickListener {
         findViewById(R.id.button7).setOnClickListener(this);
         findViewById(R.id.button8).setOnClickListener(this);
         findViewById(R.id.button9).setOnClickListener(this);
+        findViewById(R.id.button10).setOnClickListener(this);
+        findViewById(R.id.button11).setOnClickListener(this);
     }
 
 
@@ -67,7 +67,11 @@ public class MyActivity extends Activity implements OnClickListener {
                 Log.e(TAG, "e", e);
             }
         } else if (id == R.id.button9) {
-            startActivity(new Intent(this,ActivityTestActivity.class));
+            startActivity(new Intent(this, ActivityTestActivity.class));
+        } else if (id == R.id.button10) {
+            startActivity(new Intent(this, NativeTestActivity.class));
+        } else if (id == R.id.button11) {
+            startActivity(new Intent(this, WebViewTestActivity.class));
         }
 
     }

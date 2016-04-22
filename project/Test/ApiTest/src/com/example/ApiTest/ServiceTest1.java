@@ -1,12 +1,13 @@
 package com.example.ApiTest;
 
-import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.RemoteException;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -15,7 +16,7 @@ import android.widget.Toast;
 /**
  * Created by zhangyong6 on 2015/3/2.
  */
-public class ServiceTest1 extends Activity implements OnClickListener {
+public class ServiceTest1 extends AppCompatActivity implements OnClickListener {
 
 
     private static final String TAG = "ServiceTest";
@@ -44,6 +45,13 @@ public class ServiceTest1 extends Activity implements OnClickListener {
             String msg = String.format("服务%s,onServiceConnected：name=%s,service=%s", "service1", name, service);
             Toast.makeText(ServiceTest1.this, msg, Toast.LENGTH_SHORT).show();
             Log.e(TAG, msg);
+            try {
+                Binder1 binder1 = Binder1.Stub.asInterface(service);
+                msg = String.format("onServiceConnected,binder1=%s,pind(2016)=%s,pingStr(Is Andy Zhang handsome?)=%s", binder1, binder1.ping(2016), binder1.pingStr("Is Andy Zhang handsome?"));
+                Log.e(TAG, msg);
+            } catch (RemoteException e) {
+                Log.e(TAG, "", e);
+            }
         }
 
         @Override
@@ -60,6 +68,14 @@ public class ServiceTest1 extends Activity implements OnClickListener {
             String msg = String.format("服务%s,onServiceConnected：name=%s,service=%s", "service2", name, service);
             Toast.makeText(ServiceTest1.this, msg, Toast.LENGTH_SHORT).show();
             Log.e(TAG, msg);
+
+            try {
+                Binder2 binder1 = Binder2.Stub.asInterface(service);
+                msg = String.format("onServiceConnected,Binder2=%s,pind(2016)=%s,pingStr(Is Andy Zhang handsome?)=%s", binder1, binder1.ping(2016), binder1.pingStr("Is Andy Zhang handsome?"));
+                Log.e(TAG, msg);
+            } catch (RemoteException e) {
+                Log.e(TAG, "", e);
+            }
         }
 
         @Override

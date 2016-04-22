@@ -3,6 +3,9 @@ Droid Plugin
 
 [中文文档](readme_cn.md "中文文档")
 
+We just transfer the project to a new address for more no-official contributors
+The new address: [DroidPlugin](https://github.com/DroidPluginTeam/DroidPlugin "DroidPlugin")
+
 DroidPlugin is a new **Plugin Framework** developed and maintained by the Android app-store team at Qihoo 360 (NYSE:QIHU).
 It enables the host app run any third-party apk without installation, modification and repackage, which benefit a lot for collaborative development on Android.
 
@@ -107,7 +110,11 @@ It is very simple integrate Droid Plugin to your proejct：
 3. **Activate**
 
     Just use android's API, same for communication between components.
-
+	
+## FAQ
+	
+ [FAQ](https://github.com/DroidPluginTeam/DroidPlugin/wiki/FAQ "FAQ")
+	
 ## Remark：
 
 Please feel free to [report bugs](https://github.com/Qihoo360/DroidPlugin/issues) or ask for help via email.

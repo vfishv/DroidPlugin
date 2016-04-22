@@ -41,7 +41,6 @@ import android.content.pm.ServiceInfo;
 import android.content.pm.Signature;
 import android.net.Uri;
 import android.os.Binder;
-import android.os.Build;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.os.RemoteException;
@@ -54,25 +53,20 @@ import com.morgoo.droidplugin.core.PluginDirHelper;
 import com.morgoo.droidplugin.pm.parser.IntentMatcher;
 import com.morgoo.droidplugin.pm.parser.PluginPackageParser;
 import com.morgoo.helper.Log;
-import com.morgoo.helper.compat.PackageManagerCompat;
 import com.morgoo.helper.Utils;
+import com.morgoo.helper.compat.NativeLibraryHelperCompat;
+import com.morgoo.helper.compat.PackageManagerCompat;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 /**
  * 此服务模仿系统的PackageManagerService，提供对插件简单的管理服务。
@@ -152,7 +146,7 @@ public class IPluginManagerImpl extends IPluginManager.Stub {
                 }
             }
         } catch (Exception e) {
-            Log.e(TAG, "scan a apk file error %s", e);
+            Log.e(TAG, "scan a apk file error", e);
         }
 
         Log.i(TAG, "Search apk cost %s ms", (System.currentTimeMillis() - b));
@@ -250,7 +244,7 @@ public class IPluginManagerImpl extends IPluginManager.Stub {
         waitForReadyInner();
         try {
             String pkg = getAndCheckCallingPkg(packageName);
-            if (pkg != null) {
+            if (pkg != null && !TextUtils.equals(packageName, mContext.getPackageName())) {
                 enforcePluginFileExists();
                 PluginPackageParser parser = mPluginCache.get(pkg);
                 if (parser != null) {
@@ -806,6 +800,9 @@ public class IPluginManagerImpl extends IPluginManager.Stub {
     public ApplicationInfo getApplicationInfo(String packageName, int flags) throws RemoteException {
         waitForReadyInner();
         try {
+            if (TextUtils.equals(packageName, mContext.getPackageName())) {
+                return null;
+            }
             PluginPackageParser parser = mPluginCache.get(packageName);
             if (parser != null) {
                 return parser.getApplicationInfo(flags);
@@ -861,7 +858,11 @@ public class IPluginManagerImpl extends IPluginManager.Stub {
 //                        Log.e(TAG, "reqFeature name=%s,flags=%s,glesVersion=%s", reqFeature.name, reqFeature.flags, reqFeature.getGlEsVersion());
 //                    }
 //                }
-                copyNativeLibs(mContext, apkfile, parser.getApplicationInfo(0));
+                if (copyNativeLibs(mContext, apkfile, parser.getApplicationInfo(0)) < 0) {
+                    new File(apkfile).delete();
+                    return PackageManagerCompat.INSTALL_FAILED_NOT_SUPPORT_ABI;
+                }
+
                 dexOpt(mContext, apkfile, parser);
                 mPluginCache.put(parser.getPackageName(), parser);
                 mActivityManagerService.onPkgInstalled(mPluginCache, parser, parser.getPackageName());
@@ -898,7 +899,11 @@ public class IPluginManagerImpl extends IPluginManager.Stub {
 //                        }
 //                    }
 
-                    copyNativeLibs(mContext, apkfile, parser.getApplicationInfo(0));
+                    if (copyNativeLibs(mContext, apkfile, parser.getApplicationInfo(0)) < 0) {
+                        new File(apkfile).delete();
+                        return PackageManagerCompat.INSTALL_FAILED_NOT_SUPPORT_ABI;
+                    }
+
                     dexOpt(mContext, apkfile, parser);
                     mPluginCache.put(parser.getPackageName(), parser);
                     mActivityManagerService.onPkgInstalled(mPluginCache, parser, parser.getPackageName());
@@ -981,102 +986,11 @@ public class IPluginManagerImpl extends IPluginManager.Stub {
         mContext.sendBroadcast(intent);
     }
 
-    private void copyNativeLibs(Context context, String apkfile, ApplicationInfo applicationInfo) throws Exception {
+    private int copyNativeLibs(Context context, String apkfile, ApplicationInfo applicationInfo) throws Exception {
         String nativeLibraryDir = PluginDirHelper.getPluginNativeLibraryDir(context, applicationInfo.packageName);
-        ZipFile zipFile = null;
-        try {
-            zipFile = new ZipFile(apkfile);
-            Enumeration<? extends ZipEntry> entries = zipFile.entries();
-            Map<String, ZipEntry> libZipEntries = new HashMap<String, ZipEntry>();
-            Map<String, Set<String>> soList = new HashMap<String, Set<String>>(1);
-            while (entries.hasMoreElements()) {
-                ZipEntry entry = entries.nextElement();
-                String name = entry.getName();
-                if (name.contains("../")) {
-                    Log.d(TAG, "Path traversal attack prevented");
-                    continue;
-                }
-                if (name.startsWith("lib/") && !entry.isDirectory()) {
-                    libZipEntries.put(name, entry);
-                    String soName = new File(name).getName();
-                    Set<String> fs = soList.get(soName);
-                    if (fs == null) {
-                        fs = new TreeSet<String>();
-                        soList.put(soName, fs);
-                    }
-                    fs.add(name);
-                }
-            }
-
-            for (String soName : soList.keySet()) {
-                Log.e(TAG, "==========so name=" + soName);
-                Set<String> soPaths = soList.get(soName);
-                String soPath = findSoPath(soPaths);
-                if (soPath != null) {
-                    File file = new File(nativeLibraryDir, soName);
-                    if (file.exists()) {
-                        file.delete();
-                    }
-                    InputStream in = null;
-                    FileOutputStream ou = null;
-                    try {
-                        in = zipFile.getInputStream(libZipEntries.get(soPath));
-                        ou = new FileOutputStream(file);
-                        byte[] buf = new byte[8192];
-                        int read = 0;
-                        while ((read = in.read(buf)) != -1) {
-                            ou.write(buf, 0, read);
-                        }
-                        ou.flush();
-                        ou.getFD().sync();
-                        Log.i(TAG, "copy so(%s) for %s to %s ok!", soName, soPath, file.getPath());
-                    } catch (Exception e) {
-                        if (file.exists()) {
-                            file.delete();
-                        }
-                        throw e;
-                    } finally {
-                        if (in != null) {
-                            try {
-                                in.close();
-                            } catch (Exception e) {
-                            }
-                        }
-                        if (ou != null) {
-                            try {
-                                ou.close();
-                            } catch (Exception e) {
-                            }
-                        }
-                    }
-                }
-            }
-        } finally {
-            if (zipFile != null) {
-                try {
-                    zipFile.close();
-                } catch (Exception e) {
-                }
-            }
-        }
+        return NativeLibraryHelperCompat.copyNativeBinaries(new File(apkfile), new File(nativeLibraryDir));
     }
 
-    private String findSoPath(Set<String> soPaths) {
-        if (soPaths != null && soPaths.size() > 0) {
-            for (String soPath : soPaths) {
-                if (!TextUtils.isEmpty(Build.CPU_ABI) && soPath.contains(Build.CPU_ABI)) {
-                    return soPath;
-                }
-            }
-
-            for (String soPath : soPaths) {
-                if (!TextUtils.isEmpty(Build.CPU_ABI2) && soPath.contains(Build.CPU_ABI2)) {
-                    return soPath;
-                }
-            }
-        }
-        return null;
-    }
 
     @Override
     public int deletePackage(String packageName, int flags) throws RemoteException {
@@ -1347,12 +1261,12 @@ public class IPluginManagerImpl extends IPluginManager.Stub {
     }
 
     @Override
-    public void onActivtyOnNewIntent(ActivityInfo stubInfo, ActivityInfo targetInfo, Intent intent) throws RemoteException{
+    public void onActivtyOnNewIntent(ActivityInfo stubInfo, ActivityInfo targetInfo, Intent intent) throws RemoteException {
         mActivityManagerService.onActivtyOnNewIntent(Binder.getCallingPid(), Binder.getCallingUid(), stubInfo, targetInfo, intent);
     }
 
     @Override
-    public int getMyPid(){
+    public int getMyPid() {
         return android.os.Process.myPid();
     }
 

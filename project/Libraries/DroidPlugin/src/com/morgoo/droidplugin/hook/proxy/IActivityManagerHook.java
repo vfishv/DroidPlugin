@@ -35,6 +35,8 @@ import com.morgoo.helper.compat.ActivityManagerNativeCompat;
 import com.morgoo.helper.compat.IActivityManagerCompat;
 import com.morgoo.helper.compat.SingletonCompat;
 
+import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -53,6 +55,18 @@ public class IActivityManagerHook extends ProxyHook {
     @Override
     public BaseHookHandle createHookHandle() {
         return new IActivityManagerHookHandle(mHostContext);
+    }
+
+    @Override
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        try {
+            return super.invoke(proxy, method, args);
+        } catch (SecurityException e) {
+            String msg = String.format("msg[%s],args[%s]", e.getMessage(), Arrays.toString(args));
+            SecurityException e1 = new SecurityException(msg);
+            e1.initCause(e);
+            throw e1;
+        }
     }
 
     @Override
@@ -81,7 +95,7 @@ public class IActivityManagerHook extends ProxyHook {
             setOldObj(obj1);
             List<Class<?>> interfaces = Utils.getAllInterfaces(mOldObj.getClass());
             Class[] ifs = interfaces != null && interfaces.size() > 0 ? interfaces.toArray(new Class[interfaces.size()]) : new Class[0];
-            final Object object = MyProxy.newProxyInstance(mOldObj.getClass().getClassLoader(),ifs, IActivityManagerHook.this);
+            final Object object = MyProxy.newProxyInstance(mOldObj.getClass().getClassLoader(), ifs, IActivityManagerHook.this);
             Object iam1 = ActivityManagerNativeCompat.getDefault();
 
             //这里先写一次，防止后面找不到Singleton类导致的挂钩子失败的问题。

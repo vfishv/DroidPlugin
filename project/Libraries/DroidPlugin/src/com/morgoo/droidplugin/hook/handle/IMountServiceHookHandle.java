@@ -25,18 +25,23 @@ package com.morgoo.droidplugin.hook.handle;
 import android.content.Context;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
-import android.os.Environment;
 import android.text.TextUtils;
+
 import com.morgoo.droidplugin.hook.BaseHookHandle;
 import com.morgoo.droidplugin.hook.HookedMethodHandler;
+import com.morgoo.droidplugin.pm.PluginManager;
 
-import java.io.File;
 import java.lang.reflect.Method;
+import java.util.regex.Pattern;
 
 /**
  * Created by Andy Zhang(zhangyong232@gmail.com) on 2015/3/6.
  */
 public class IMountServiceHookHandle extends BaseHookHandle {
+
+//    private static final String ANDROID_DATA = "Android/data/";
+//    private static final String ANDROID_OBB = "Android/obb/";
+
     public IMountServiceHookHandle(Context context) {
         super(context);
     }
@@ -46,11 +51,22 @@ public class IMountServiceHookHandle extends BaseHookHandle {
         sHookedMethodHandlers.put("mkdirs", new mkdirs(mHostContext));
     }
 
+
+    private static final String VALID_JAVA_IDENTIFIER = "(\\p{javaJavaIdentifierStart}\\p{javaJavaIdentifierPart}*\\.)*\\p{javaJavaIdentifierStart}\\p{javaJavaIdentifierPart}*";
+    private static final Pattern ANDROID_DATA_PATTERN = Pattern.compile(VALID_JAVA_IDENTIFIER);
+
+    private static boolean validateJavaIdentifier(String identifier) {
+        return ANDROID_DATA_PATTERN.matcher(identifier).matches();
+    }
+
     private class mkdirs extends HookedMethodHandler {
         public mkdirs(Context context) {
             super(context);
         }
 
+
+        //  /sdcard/Android/data/com.example.plugin/fdfdfdfd.fdfd
+        // /sdcard/Android/data/hostpackagename/Plugin/com.example.plugin/fdfdfdfd.fdfd
         @Override
         protected boolean beforeInvoke(Object receiver, Method method, Object[] args) throws Throwable {
             if (VERSION.SDK_INT >= VERSION_CODES.KITKAT) {
@@ -67,10 +83,28 @@ public class IMountServiceHookHandle extends BaseHookHandle {
                 if (args != null && args.length > index1 && args[index1] instanceof String) {
                     String path = (String) args[index1];
 //                    String path1 = new File(Environment.getExternalStorageDirectory(), "Android/data/").getPath();
-                    final boolean isHostPath = path.indexOf("Android/data/" + mHostContext.getPackageName()) < 0;
-                    if (path != null && isHostPath) {
-                        path = path.replaceFirst("Android/data/", "Android/data/" + mHostContext.getPackageName() + "/Plugin/");
-                        args[index1] = path;
+                    if (path != null) {
+                        String[] dirs = path.split("/");
+                        if (dirs != null && dirs.length > 0) {
+                            String pluginPackageName = null;
+                            for (int i = 0; i < dirs.length; i++) {
+                                String str = dirs[i];
+                                if (TextUtils.isEmpty(str)) {
+                                    continue;
+                                }
+                                if (!validateJavaIdentifier(str)) {
+                                    continue;
+                                }
+                                if (PluginManager.getInstance().isPluginPackage(str)) {
+                                    pluginPackageName = str;
+                                    break;
+                                }
+                            }
+                            if (pluginPackageName != null) {
+                                path = path.replaceFirst(pluginPackageName, mHostContext.getPackageName() + "/Plugin/" + pluginPackageName);
+                                args[index1] = path;
+                            }
+                        }
                     }
                 }
             } else {
@@ -79,10 +113,28 @@ public class IMountServiceHookHandle extends BaseHookHandle {
                 if (args != null && args.length > index1 && args[index1] instanceof String) {
                     String path = (String) args[index1];
 //                    String path1 = new File(Environment.getExternalStorageDirectory(), "Android/data/").getPath();
-                    final boolean isHostPath = path.indexOf("Android/data/" + mHostContext.getPackageName()) < 0;
-                    if (path != null && isHostPath) {
-                        path = path.replaceFirst("Android/data/", "Android/data/"+mHostContext.getPackageName()+"/Plugin/");
-                        args[index1] = path;
+                    if (path != null) {
+                        String[] dirs = path.split("/");
+                        if (dirs != null && dirs.length > 0) {
+                            String pluginPackageName = null;
+                            for (int i = 0; i < dirs.length; i++) {
+                                String str = dirs[i];
+                                if (TextUtils.isEmpty(str)) {
+                                    continue;
+                                }
+                                if (!validateJavaIdentifier(str)) {
+                                    continue;
+                                }
+                                if (PluginManager.getInstance().isPluginPackage(str)) {
+                                    pluginPackageName = str;
+                                    break;
+                                }
+                            }
+                            if (pluginPackageName != null) {
+                                path = path.replaceFirst(pluginPackageName, mHostContext.getPackageName() + "/Plugin/" + pluginPackageName);
+                                args[index1] = path;
+                            }
+                        }
                     }
                 }
             }

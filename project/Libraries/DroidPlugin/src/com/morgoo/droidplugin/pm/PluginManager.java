@@ -46,10 +46,8 @@ import android.text.TextUtils;
 import com.morgoo.droidplugin.PluginManagerService;
 import com.morgoo.droidplugin.reflect.MethodUtils;
 import com.morgoo.helper.Log;
-import com.morgoo.helper.compat.PackageManagerCompat;
 
 import java.lang.ref.WeakReference;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -64,8 +62,11 @@ public class PluginManager implements ServiceConnection {
 
     public static final String ACTION_PACKAGE_ADDED = "com.morgoo.doirplugin.PACKAGE_ADDED";
     public static final String ACTION_PACKAGE_REMOVED = "com.morgoo.doirplugin.PACKAGE_REMOVED";
-
-
+    public static final String ACTION_DROIDPLUGIN_INIT = "com.morgoo.droidplugin.ACTION_DROIDPLUGIN_INIT";
+    public static final String ACTION_MAINACTIVITY_ONCREATE = "com.morgoo.droidplugin.ACTION_MAINACTIVITY_ONCREATE";
+    public static final String ACTION_MAINACTIVITY_ONDESTORY = "com.morgoo.droidplugin.ACTION_MAINACTIVITY_ONDESTORY";
+    public static final String ACTION_SETTING = "com.morgoo.droidplugin.ACTION_SETTING";
+    public static final String ACTION_SHORTCUT_PROXY = "com.morgoo.droidplugin.ACTION_SHORTCUT_PROXY";
 
 
     public static final String EXTRA_PID = "com.morgoo.droidplugin.EXTRA_PID";
@@ -177,10 +178,11 @@ public class PluginManager implements ServiceConnection {
 
     /**
      * 提供超时设置的waitForConnected版本
+     *
      * @param timeout，当超时时间大于0时超时设置生效
      */
     public void waitForConnected(long timeout) {
-        if(timeout > 0){
+        if (timeout > 0) {
             if (isConnected()) {
                 return;
             } else {
@@ -193,11 +195,10 @@ public class PluginManager implements ServiceConnection {
                 }
                 Log.i(TAG, "waitForConnected finish");
             }
-        }else{
+        } else {
             waitForConnected();
         }
     }
-
 
 
     private IPluginManager mPluginManager;
@@ -233,6 +234,10 @@ public class PluginManager implements ServiceConnection {
     public void init(Context hostContext) {
         mHostContext = hostContext;
         connectToService();
+    }
+
+    public Context getHostContext() {
+        return mHostContext;
     }
 
     public boolean isConnected() {

@@ -60,8 +60,11 @@ public class PluginHelper implements ServiceConnection {
     }
 
     public void applicationOnCreate(final Context baseContext) {
+        mContext = baseContext;
         initPlugin(baseContext);
     }
+
+    private Context mContext;
 
     private void initPlugin(Context baseContext) {
         long b = System.currentTimeMillis();
@@ -73,6 +76,7 @@ public class PluginHelper implements ServiceConnection {
             }
 
             try {
+                PluginPatchManager.getInstance().init(baseContext);
                 PluginProcessManager.installHook(baseContext);
             } catch (Throwable e) {
                 Log.e(TAG, "installHook has error", e);
@@ -139,7 +143,7 @@ public class PluginHelper implements ServiceConnection {
                 }
                 Log.e(TAG, "getMainLooper MessageQueue.IdleHandler:" + mMessages);
             } catch (Exception e) {
-                e.printStackTrace();
+                Log.e(TAG, "fixMiUiLbeSecurity:error on remove lbe message", e);
             }
         }
     }
@@ -164,7 +168,7 @@ public class PluginHelper implements ServiceConnection {
                 findLbeMessageAndRemoveIt(next);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(TAG, "findLbeMessageAndRemoveIt:error on remove lbe message", e);
         }
 
     }
