@@ -76,6 +76,8 @@ public class IPluginManagerImpl extends IPluginManager.Stub {
 
     private static final String TAG = IPluginManagerImpl.class.getSimpleName();
 
+    private static final boolean CHECK_PERMISSION = false;
+
     private Map<String, PluginPackageParser> mPluginCache = Collections.synchronizedMap(new HashMap<String, PluginPackageParser>(20));
 
     private Context mContext;
@@ -845,7 +847,7 @@ public class IPluginManagerImpl extends IPluginManager.Stub {
                             b = pm.getPermissionInfo(requestedPermission, 0) != null;
                         } catch (NameNotFoundException e) {
                         }
-                        if (!mHostRequestedPermission.contains(requestedPermission) && b) {
+                        if (CHECK_PERMISSION && !mHostRequestedPermission.contains(requestedPermission) && b) {
                             Log.e(TAG, "No Permission %s", requestedPermission);
                             new File(apkfile).delete();
                             return PluginManager.INSTALL_FAILED_NO_REQUESTEDPERMISSION;
@@ -885,7 +887,7 @@ public class IPluginManagerImpl extends IPluginManager.Stub {
                                 b = pm.getPermissionInfo(requestedPermission, 0) != null;
                             } catch (NameNotFoundException e) {
                             }
-                            if (!mHostRequestedPermission.contains(requestedPermission) && b) {
+                            if (CHECK_PERMISSION && !mHostRequestedPermission.contains(requestedPermission) && b) {
                                 Log.e(TAG, "No Permission %s", requestedPermission);
                                 new File(apkfile).delete();
                                 return PluginManager.INSTALL_FAILED_NO_REQUESTEDPERMISSION;

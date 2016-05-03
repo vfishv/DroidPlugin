@@ -1,5 +1,7 @@
 package com.example.ApiTest;
 
+import android.app.ActivityManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -9,6 +11,8 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Toast;
+
+import com.example.ApiTest.util.Util;
 
 import java.util.List;
 
@@ -21,7 +25,11 @@ public class MyActivity extends AppCompatActivity implements OnClickListener {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        Log.e(TAG, "pid:" + Util.getCurProcessName(this));
+
         setContentView(R.layout.main);
+        findViewById(R.id.button0).setOnClickListener(this);
         findViewById(R.id.button1).setOnClickListener(this);
         findViewById(R.id.button2).setOnClickListener(this);
         findViewById(R.id.button3).setOnClickListener(this);
@@ -35,10 +43,13 @@ public class MyActivity extends AppCompatActivity implements OnClickListener {
         findViewById(R.id.button11).setOnClickListener(this);
     }
 
-
     @Override
     public void onClick(View v) {
         int id = v.getId();
+        if(id == R.id.button0)
+        {
+            startActivity(new Intent(this, NewProcessActivity.class));
+        }
         if (id == R.id.button1) {
             startActivity(new Intent(this, ServiceTest1.class));
         } else if (id == R.id.button2) {
