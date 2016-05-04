@@ -33,25 +33,37 @@ public class MyActivity extends AppCompatActivity {
 
         @Override
         public int getCount() {
-            return 2;
+            return 3;
         }
 
         @Override
         public Fragment getItem(int position) {
-            if (position == 0) {
-                return new InstalledFragment();
-            } else {
-                return new ApkFragment();
+
+            switch (position)
+            {
+                case 0:
+                    return new InstalledFragment();
+                case 1:
+                    return new ApkFragment();
+                case 2:
+                    return new FolderFragment();
             }
+            return new FolderFragment();
         }
 
         @Override
         public CharSequence getPageTitle(int position) {
-            if (position == 0) {
-                return "已安装";
-            } else {
-                return "待安装";
+
+            switch (position)
+            {
+                case 0:
+                    return "已安装";
+                case 1:
+                    return "待安装";
+                case 2:
+                    return "inner files";
             }
+            return "untitled";
         }
     };
 
