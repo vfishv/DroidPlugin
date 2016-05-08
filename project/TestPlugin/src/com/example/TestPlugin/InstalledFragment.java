@@ -47,8 +47,12 @@ public class InstalledFragment extends ListFragment implements ServiceConnection
 
             PackageManager pm = getActivity().getPackageManager();
             Intent intent = pm.getLaunchIntentForPackage(item.packageInfo.packageName);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
+            if (intent != null) {
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+            } else {
+                Toast.makeText(getActivity(), "没有没有入口.", Toast.LENGTH_SHORT).show();
+            }
         } else if (v.getId() == R.id.button3) {
             doUninstall(item);
         }

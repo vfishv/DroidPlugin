@@ -90,7 +90,7 @@ public class FolderFragment extends ListFragment {
                 FileItem fileItem = adapter.getItem(position);
                 if (fileItem != null) {
                     File file = new File(fileItem.path);
-                    if (file != null && file.exists() && file.canRead()) {
+                    if (file != null && file.exists()/* && file.canRead()*/) {
                         startLoad(file.getAbsolutePath());
                     }
                     else

@@ -33,7 +33,7 @@ public class MyActivity extends AppCompatActivity {
 
         @Override
         public int getCount() {
-            return 3;
+            return 4;
         }
 
         @Override
@@ -46,6 +46,8 @@ public class MyActivity extends AppCompatActivity {
                 case 1:
                     return new ApkFragment();
                 case 2:
+                    return new InstalledAppsFragment();
+                case 3:
                     return new FolderFragment();
             }
             return new FolderFragment();
@@ -61,6 +63,8 @@ public class MyActivity extends AppCompatActivity {
                 case 1:
                     return "待安装";
                 case 2:
+                    return "Installed";
+                case 3:
                     return "inner files";
             }
             return "untitled";
