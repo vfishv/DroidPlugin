@@ -291,7 +291,11 @@ public class InstalledAppsFragment extends ListFragment {
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
-                            setListShown(true);
+                            try {
+                                setListShown(true);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
                         }
                     });
                 }
