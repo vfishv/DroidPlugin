@@ -861,9 +861,11 @@ public class IPluginManagerImpl extends IPluginManager.Stub {
 //                        Log.e(TAG, "reqFeature name=%s,flags=%s,glesVersion=%s", reqFeature.name, reqFeature.flags, reqFeature.getGlEsVersion());
 //                    }
 //                }
-                if (CHECK_ABI && copyNativeLibs(mContext, apkfile, parser.getApplicationInfo(0)) < 0) {
-                    new File(apkfile).delete();
-                    return PackageManagerCompat.INSTALL_FAILED_NOT_SUPPORT_ABI;
+                if (copyNativeLibs(mContext, apkfile, parser.getApplicationInfo(0)) < 0) {
+                    if (CHECK_ABI) {
+                        new File(apkfile).delete();
+                        return PackageManagerCompat.INSTALL_FAILED_NOT_SUPPORT_ABI;
+                    }
                 }
 
                 dexOpt(mContext, apkfile, parser);
@@ -902,9 +904,11 @@ public class IPluginManagerImpl extends IPluginManager.Stub {
 //                        }
 //                    }
 
-                    if (CHECK_ABI && copyNativeLibs(mContext, apkfile, parser.getApplicationInfo(0)) < 0) {
-                        new File(apkfile).delete();
-                        return PackageManagerCompat.INSTALL_FAILED_NOT_SUPPORT_ABI;
+                    if (copyNativeLibs(mContext, apkfile, parser.getApplicationInfo(0)) < 0) {
+                        if (CHECK_ABI) {
+                            new File(apkfile).delete();
+                            return PackageManagerCompat.INSTALL_FAILED_NOT_SUPPORT_ABI;
+                        }
                     }
 
                     dexOpt(mContext, apkfile, parser);
