@@ -32,6 +32,7 @@ import android.content.pm.ProviderInfo;
 import android.content.pm.ServiceInfo;
 import android.os.RemoteException;
 import android.text.TextUtils;
+import android.util.SparseArray;
 
 import com.morgoo.droidplugin.pm.PluginManager;
 import com.morgoo.helper.Log;
@@ -39,12 +40,14 @@ import com.morgoo.helper.Log;
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 正在运行的进程列表
@@ -340,7 +343,10 @@ class RunningProcesList {
     }
 
     //key=pid, value=ProcessItem;
-    private Map<Integer, ProcessItem> items = new HashMap<Integer, ProcessItem>(5);
+//    private Map<Integer, ProcessItem> items = new HashMap<Integer, ProcessItem>(5);
+    //private SparseArray<ProcessItem> items2 = new SparseArray<ProcessItem>(5);
+    private ConcurrentHashMap<Integer, ProcessItem> items = new ConcurrentHashMap<Integer, ProcessItem>(5);
+    //private Map<Integer, ProcessItem> items = Collections.synchronizedMap(new HashMap<Integer, ProcessItem>(5));
 
     ProcessItem removeByPid(int pid) {
         return items.remove(pid);
