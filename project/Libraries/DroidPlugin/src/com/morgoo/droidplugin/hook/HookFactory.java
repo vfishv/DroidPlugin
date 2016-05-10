@@ -34,10 +34,16 @@ import com.morgoo.droidplugin.hook.binder.IGraphicsStatsBinderHook;
 import com.morgoo.droidplugin.hook.binder.IInputMethodManagerBinderHook;
 import com.morgoo.droidplugin.hook.binder.ILocationManagerBinderHook;
 import com.morgoo.droidplugin.hook.binder.IMediaRouterServiceBinderHook;
+import com.morgoo.droidplugin.hook.binder.IMmsBinderHook;
 import com.morgoo.droidplugin.hook.binder.IMountServiceBinderHook;
 import com.morgoo.droidplugin.hook.binder.INotificationManagerBinderHook;
+import com.morgoo.droidplugin.hook.binder.IPhoneSubInfoBinderHook;
 import com.morgoo.droidplugin.hook.binder.ISearchManagerBinderHook;
 import com.morgoo.droidplugin.hook.binder.ISessionManagerBinderHook;
+import com.morgoo.droidplugin.hook.binder.ISmsBinderHook;
+import com.morgoo.droidplugin.hook.binder.ISubBinderHook;
+import com.morgoo.droidplugin.hook.binder.ITelephonyBinderHook;
+import com.morgoo.droidplugin.hook.binder.ITelephonyRegistryBinderHook;
 import com.morgoo.droidplugin.hook.binder.IWifiManagerBinderHook;
 import com.morgoo.droidplugin.hook.binder.IWindowManagerBinderHook;
 import com.morgoo.droidplugin.hook.proxy.IActivityManagerHook;
@@ -45,6 +51,7 @@ import com.morgoo.droidplugin.hook.proxy.IPackageManagerHook;
 import com.morgoo.droidplugin.hook.proxy.InstrumentationHook;
 import com.morgoo.droidplugin.hook.proxy.LibCoreHook;
 import com.morgoo.droidplugin.hook.proxy.PluginCallbackHook;
+import com.morgoo.droidplugin.hook.realloc.NativeHook;
 import com.morgoo.droidplugin.hook.xhook.SQLiteDatabaseHook;
 import com.morgoo.helper.Log;
 
@@ -144,13 +151,38 @@ public class HookFactory {
         if (VERSION.SDK_INT >= VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
             installHook(new ILocationManagerBinderHook(context), classLoader);
         }
+
+        if (VERSION.SDK_INT >= VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
+            installHook(new ITelephonyRegistryBinderHook(context),classLoader);
+        }
+
+        if (VERSION.SDK_INT >= VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
+            installHook(new ISubBinderHook(context),classLoader);
+        }
+
+        if (VERSION.SDK_INT >= VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
+            installHook(new IPhoneSubInfoBinderHook(context),classLoader);
+        }
+
+        if (VERSION.SDK_INT >= VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
+            installHook(new ITelephonyBinderHook(context),classLoader);
+        }
+
+        if (VERSION.SDK_INT >= VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
+            installHook(new ISmsBinderHook(context),classLoader);
+        }
+
+        if (VERSION.SDK_INT >= VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
+            installHook(new IMmsBinderHook(context),classLoader);
+        }
+
         installHook(new IPackageManagerHook(context), classLoader);
         installHook(new IActivityManagerHook(context), classLoader);
         installHook(new PluginCallbackHook(context), classLoader);
         installHook(new InstrumentationHook(context), classLoader);
         installHook(new LibCoreHook(context), classLoader);
-
         installHook(new SQLiteDatabaseHook(context), classLoader);
+        NativeHook.open();
     }
 
     public final void onCallApplicationOnCreate(Context context, Application app) {
