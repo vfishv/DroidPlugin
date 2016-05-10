@@ -183,30 +183,30 @@ class RunningProcesList {
 
         //正在运行的插件ActivityInfo
         //key=ActivityInfo.name, value=插件的ActivityInfo,
-        private Map<String, ActivityInfo> targetActivityInfos = new HashMap<String, ActivityInfo>(4);
+        private Map<String, ActivityInfo> targetActivityInfos = new ConcurrentHashMap<String, ActivityInfo>(4);
 
 
         //正在运行的插件ProviderInfo
         //key=ProviderInfo.authority, value=插件的ProviderInfo
-        private Map<String, ProviderInfo> targetProviderInfos = new HashMap<String, ProviderInfo>(1);
+        private Map<String, ProviderInfo> targetProviderInfos = new ConcurrentHashMap<String, ProviderInfo>(1);
 
         //正在运行的插件ServiceInfo
         //key=ServiceInfo.name, value=插件的ServiceInfo
-        private Map<String, ServiceInfo> targetServiceInfos = new HashMap<String, ServiceInfo>(1);
+        private Map<String, ServiceInfo> targetServiceInfos = new ConcurrentHashMap<String, ServiceInfo>(1);
 
 
         //正在运行的插件ActivityInfo与代理ActivityInfo的映射
         //key=代理ActivityInfo.name, value=插件的ActivityInfo.name,
-        private Map<String, Set<ActivityInfo>> activityInfosMap = new HashMap<String, Set<ActivityInfo>>(4);
+        private Map<String, Set<ActivityInfo>> activityInfosMap = new ConcurrentHashMap<String, Set<ActivityInfo>>(4);
 
 
         //正在运行的插件ProviderInfo与代理ProviderInfo的映射
         //key=代理ProviderInfo.authority, value=插件的ProviderInfo.authority,
-        private Map<String, Set<ProviderInfo>> providerInfosMap = new HashMap<String, Set<ProviderInfo>>(4);
+        private Map<String, Set<ProviderInfo>> providerInfosMap = new ConcurrentHashMap<String, Set<ProviderInfo>>(4);
 
         //正在运行的插件ServiceInfo与代理ServiceInfo的映射
         //key=代理ServiceInfo.name, value=插件的ServiceInfo.name,
-        private Map<String, Set<ServiceInfo>> serviceInfosMap = new HashMap<String, Set<ServiceInfo>>(4);
+        private Map<String, Set<ServiceInfo>> serviceInfosMap = new ConcurrentHashMap<String, Set<ServiceInfo>>(4);
 
 
         private void updatePkgs() {
