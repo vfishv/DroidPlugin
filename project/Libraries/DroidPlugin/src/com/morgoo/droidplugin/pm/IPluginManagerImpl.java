@@ -77,6 +77,7 @@ public class IPluginManagerImpl extends IPluginManager.Stub {
     private static final String TAG = IPluginManagerImpl.class.getSimpleName();
 
     private static final boolean CHECK_PERMISSION = false;
+    private static final boolean CHECK_ABI = false;
 
     private Map<String, PluginPackageParser> mPluginCache = Collections.synchronizedMap(new HashMap<String, PluginPackageParser>(20));
 
@@ -860,7 +861,7 @@ public class IPluginManagerImpl extends IPluginManager.Stub {
 //                        Log.e(TAG, "reqFeature name=%s,flags=%s,glesVersion=%s", reqFeature.name, reqFeature.flags, reqFeature.getGlEsVersion());
 //                    }
 //                }
-                if (copyNativeLibs(mContext, apkfile, parser.getApplicationInfo(0)) < 0) {
+                if (CHECK_ABI && copyNativeLibs(mContext, apkfile, parser.getApplicationInfo(0)) < 0) {
                     new File(apkfile).delete();
                     return PackageManagerCompat.INSTALL_FAILED_NOT_SUPPORT_ABI;
                 }
@@ -901,7 +902,7 @@ public class IPluginManagerImpl extends IPluginManager.Stub {
 //                        }
 //                    }
 
-                    if (copyNativeLibs(mContext, apkfile, parser.getApplicationInfo(0)) < 0) {
+                    if (CHECK_ABI && copyNativeLibs(mContext, apkfile, parser.getApplicationInfo(0)) < 0) {
                         new File(apkfile).delete();
                         return PackageManagerCompat.INSTALL_FAILED_NOT_SUPPORT_ABI;
                     }

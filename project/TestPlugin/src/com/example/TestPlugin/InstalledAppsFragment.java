@@ -140,15 +140,20 @@ public class InstalledAppsFragment extends ListFragment {
             handler.post(new Runnable() {
                 @Override
                 public void run() {
+                    Activity activity = getActivity();
+                    if(activity==null)
+                    {
+                        return;
+                    }
                     switch (re) {
                         case PluginManager.INSTALL_FAILED_NO_REQUESTEDPERMISSION:
-                            Toast.makeText(getActivity(), "安装失败，文件请求的权限太多", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(activity, "安装失败，文件请求的权限太多", Toast.LENGTH_SHORT).show();
                             break;
                         case INSTALL_FAILED_NOT_SUPPORT_ABI:
-                            Toast.makeText(getActivity(), "宿主不支持插件的abi环境，可能宿主运行时为64位，但插件只支持32位", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(activity, "宿主不支持插件的abi环境，可能宿主运行时为64位，但插件只支持32位", Toast.LENGTH_SHORT).show();
                             break;
                         case INSTALL_SUCCEEDED:
-                            Toast.makeText(getActivity(), "安装完成", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(activity, "安装完成", Toast.LENGTH_SHORT).show();
                             adapter.notifyDataSetChanged();
                             break;
                     }
