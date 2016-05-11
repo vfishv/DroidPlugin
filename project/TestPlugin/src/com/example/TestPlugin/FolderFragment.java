@@ -168,6 +168,8 @@ public class FolderFragment extends ListFragment {
                     file = new File(dir);
                 }
 
+                final List<FileItem> list = new ArrayList<FileItem>(24);
+
                 File parent = file.getParentFile();
                 final FileItem parentItem = new FileItem();
                 parentItem.name = "..";
@@ -176,21 +178,21 @@ public class FolderFragment extends ListFragment {
                 parentItem.lastModified = parent.lastModified();
                 parentItem.size = parent.length();
 
-                final List<FileItem> list = new ArrayList<FileItem>(24);
+                try {
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            adapter.clear();
+                            adapter.add(parentItem);
+                            list.add(parentItem);
+                        }
+                    });
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
                 File[] files = file.listFiles();
                 if (files != null && files.length>0) {
-                    try {
-                        handler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                adapter.clear();
-                                adapter.add(parentItem);
-                                list.add(parentItem);
-                            }
-                        });
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
                     for (File f : files) {
                         final FileItem fileItem = new FileItem();
                         fileItem.name = f.getName();
