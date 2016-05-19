@@ -3,12 +3,16 @@ package com.example.ApiTest;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -23,6 +27,8 @@ import java.lang.reflect.InvocationTargetException;
 public class NewProcessActivity extends Activity {
 
     private static final String TAG = "NewProcessActivity";
+
+    private Dialog selectDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,7 +84,53 @@ public class NewProcessActivity extends Activity {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                dialog.show();
+                //dialog.show();
+                /* 初始化普通对话框。并设置样式 */
+                selectDialog = new Dialog(NewProcessActivity.this, R.style.dialog);
+                selectDialog.setCancelable(true);
+				/* 设置普通对话框的布局 */
+                selectDialog.setContentView(R.layout.slt_cnt_type);
+
+                final View rootView = selectDialog.findViewById(R.id.bgDialog);
+
+				/* +2+取得布局中的文本控件，并赋值需要显示的内容+2+ */
+                TextView textView01 = (TextView) selectDialog
+                        .findViewById(R.id.TextView01);
+                textView01
+                        .setText("光阴似箭，日月如梭。譬如流水，不舍昼夜。时光匆匆，岁月悠悠。红尘过客，流年几许。前世今生，春去秋来。愿君惜时，比肩圣人。");
+
+                Button btnItem1 = (Button) selectDialog.findViewById(R.id.ly1btn1);
+                btnItem1.setOnClickListener(new Button.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Animation animation = AnimationUtils.loadAnimation(NewProcessActivity.this,R.anim.zoom_exit);
+                        animation.setAnimationListener(new Animation.AnimationListener() {
+                            @Override
+                            public void onAnimationStart(Animation animation) {
+
+                            }
+
+                            @Override
+                            public void onAnimationEnd(Animation animation) {
+                                selectDialog.dismiss();//隐藏对话框
+                            }
+
+                            @Override
+                            public void onAnimationRepeat(Animation animation) {
+
+                            }
+                        });
+                        rootView.startAnimation(animation);
+                        //selectDialog.dismiss();//隐藏对话框
+                    }
+                });
+                selectDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                    @Override
+                    public void onShow(DialogInterface dialog) {
+                        rootView.startAnimation(AnimationUtils.loadAnimation(NewProcessActivity.this,R.anim.zoom_enter));
+                    }
+                });
+                selectDialog.show();//显示对话框
             }
         },1000);
 
