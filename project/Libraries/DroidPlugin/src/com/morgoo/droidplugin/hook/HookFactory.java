@@ -51,7 +51,6 @@ import com.morgoo.droidplugin.hook.proxy.IPackageManagerHook;
 import com.morgoo.droidplugin.hook.proxy.InstrumentationHook;
 import com.morgoo.droidplugin.hook.proxy.LibCoreHook;
 import com.morgoo.droidplugin.hook.proxy.PluginCallbackHook;
-import com.morgoo.droidplugin.hook.realloc.NativeHook;
 import com.morgoo.droidplugin.hook.xhook.SQLiteDatabaseHook;
 import com.morgoo.helper.Log;
 
@@ -181,8 +180,10 @@ public class HookFactory {
         installHook(new PluginCallbackHook(context), classLoader);
         installHook(new InstrumentationHook(context), classLoader);
         installHook(new LibCoreHook(context), classLoader);
+
         installHook(new SQLiteDatabaseHook(context), classLoader);
-        NativeHook.open();
+
+
     }
 
     public final void onCallApplicationOnCreate(Context context, Application app) {
