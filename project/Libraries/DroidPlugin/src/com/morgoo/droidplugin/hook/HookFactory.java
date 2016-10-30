@@ -27,9 +27,11 @@ import android.content.Context;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 
+import com.morgoo.droidplugin.hook.binder.IAppOpsServiceBinderHook;
 import com.morgoo.droidplugin.hook.binder.IAudioServiceBinderHook;
 import com.morgoo.droidplugin.hook.binder.IClipboardBinderHook;
 import com.morgoo.droidplugin.hook.binder.IContentServiceBinderHook;
+import com.morgoo.droidplugin.hook.binder.IDisplayManagerBinderHook;
 import com.morgoo.droidplugin.hook.binder.IGraphicsStatsBinderHook;
 import com.morgoo.droidplugin.hook.binder.IInputMethodManagerBinderHook;
 import com.morgoo.droidplugin.hook.binder.ILocationManagerBinderHook;
@@ -152,27 +154,31 @@ public class HookFactory {
         }
 
         if (VERSION.SDK_INT >= VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
-            installHook(new ITelephonyRegistryBinderHook(context),classLoader);
+            installHook(new ITelephonyRegistryBinderHook(context), classLoader);
         }
 
         if (VERSION.SDK_INT >= VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
-            installHook(new ISubBinderHook(context),classLoader);
+            installHook(new ISubBinderHook(context), classLoader);
         }
 
         if (VERSION.SDK_INT >= VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
-            installHook(new IPhoneSubInfoBinderHook(context),classLoader);
+            installHook(new IPhoneSubInfoBinderHook(context), classLoader);
         }
 
         if (VERSION.SDK_INT >= VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
-            installHook(new ITelephonyBinderHook(context),classLoader);
+            installHook(new ITelephonyBinderHook(context), classLoader);
         }
 
         if (VERSION.SDK_INT >= VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
-            installHook(new ISmsBinderHook(context),classLoader);
+            installHook(new ISmsBinderHook(context), classLoader);
         }
 
         if (VERSION.SDK_INT >= VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
-            installHook(new IMmsBinderHook(context),classLoader);
+            installHook(new IMmsBinderHook(context), classLoader);
+        }
+
+        if (VERSION.SDK_INT >= VERSION_CODES.M) {
+            installHook(new IAppOpsServiceBinderHook(context), classLoader);
         }
 
         installHook(new IPackageManagerHook(context), classLoader);
@@ -183,7 +189,7 @@ public class HookFactory {
 
         installHook(new SQLiteDatabaseHook(context), classLoader);
 
-
+        installHook(new IDisplayManagerBinderHook(context), classLoader);
     }
 
     public final void onCallApplicationOnCreate(Context context, Application app) {
